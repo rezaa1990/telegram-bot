@@ -3,6 +3,8 @@ const token = process.env.tel_bot_token;
 const bot = new TelegramBot(token, { polling: true });
 let waitingForAmount = false;
 const increaseCredit = require("./payment");
+const connectDB = require("./db");
+connectDB();
 
 // بررسی مقدار توکن
 if (!token) {
