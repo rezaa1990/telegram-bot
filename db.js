@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(
-      "mongodb://localhost:27017/bot_db",
+      "mongodb://localhost:27017/bot_db"
       // {
       //   useNewUrlParser: true,
       //   useUnifiedTopology: true,
