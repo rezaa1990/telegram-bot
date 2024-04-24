@@ -1,6 +1,8 @@
 const TelegramBot = require("node-telegram-bot-api");
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, {polling: true});
+const token = process.env.tel_bot_token;
+const bot = new TelegramBot(token, { polling: true });
+let waitingForAmount = false;
+const increaseCredit = require("./payment");
 
 // بررسی مقدار توکن
 if (!token) {
@@ -15,24 +17,33 @@ bot.onText(/\/start/, (msg) => {
     "سلام " + msg.chat.first_name + " به ربات ما خوشآمدید",
     {
       reply_markup: {
-        keyboard: [["my link"], ["about us"] ,["mypic"]],
+        keyboard: [["افزایش اعتبار"], ["اعتبار حساب"]],
       },
     }
   );
 });
 
-bot.on("message", (msg) => {
-  console.log(msg.text);
-  if (msg.text == "my link") {
-    bot.sendMessage(msg.chat.id, "this is my link");
-  } else if (msg.text == "mypic") {
-    bot.sendPhoto(
-      msg.chat.id,
-      "AgACAgQAAxkBAAMOZgzvnGd4N2rR7a-rB-I_EVfxKdwAAvfAMRuaXWlQTFLEUp76ihABAAMCAAN5AAM0BA"
-    );
-  } else if (msg.text == "about us") {
-    bot.sendMessage(msg.chat.id, "here : about us");
+bot.on("message", async(msg) => {
+  // console.log(msg);
+  if (waitingForAmount) {
+    // اگر در حالت دریافت مبلغ هستیم
+    const amount = parseFloat(msg.text); // تبدیل متن به عدد مبلغ
+    if (!isNaN(amount)) {
+      // اگر متن وارد شده عددی بود
+      await increaseCredit(bot, msg, amount);
+      waitingForAmount = false; // خروج از وضعیت دریافت مبلغ
+    } else {
+      bot.sendMessage(msg.chat.id, "لطفاً یک عدد وارد کنید.");
+    }
+  } else {
+    // اگر در حالت عادی هستیم
+    if (msg.text == "my link") {
+      bot.sendMessage(msg.chat.id, "this is my link");
+    } else if (msg.text == "اعتبار حساب") {
+      bot.sendMessage(msg.chat.id, `${0} تومان`);
+    } else if (msg.text == "افزایش اعتبار") {
+      bot.sendMessage(msg.chat.id, "مبلغ دلخواه را وارد کنید");
+      waitingForAmount = true;
+    }
   }
 });
-
-
